@@ -1,10 +1,15 @@
 from scrapy.utils.log import configure_logging
+from scrapy.crawler import CrawlerRunner
+from twisted.internet import reactor, defer
+
 from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
 
 from form_clicker import settings
 
 from form_clicker.spiders.usdz_spider import UsdzSpider
+
+from time import sleep
 
 
 accounts = [
@@ -27,15 +32,21 @@ accounts = [
     {'0x7c0F8bdBBA958C55e6C55E1b7DBcb6Ca5Fe0d792': 'vital772'},
 ]
 
+
+@defer.inlineCallbacks
+def crawl():
+    while True:
+        yield runner.crawl(UsdzSpider, accounts=accounts)
+        print('___NEXT CLAIM IN 2 HOURS___')
+        sleep(7200)
+    reactor.stop()
+
+
 if __name__ == '__main__':
     configure_logging()
     custom_settings = Settings()
     custom_settings.setmodule(settings)
 
-    custom_settings = Settings()
-    custom_settings.setmodule(settings)
-
-    process = CrawlerProcess(settings=custom_settings)
-    process.crawl(UsdzSpider, accounts=accounts)
-
-    process.start()
+    runner = CrawlerRunner(settings=custom_settings)
+    crawl()
+    reactor.run()

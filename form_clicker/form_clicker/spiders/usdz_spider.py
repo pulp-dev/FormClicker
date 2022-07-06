@@ -44,7 +44,12 @@ class UsdzSpider(Spider):
 
     def press_claim_button(self, response: TextResponse, **kwargs):
         authorization = 'Bearer ' + response.json()['access']
-        r = requests.post(self.claim_url, headers={'Authorization': authorization})
+        r = requests.post(self.claim_url, headers={
+            'Authorization': authorization,
+            'Accept': 'application/json, text/plain, */*',
+            'Referrer': self.start_urls[0],
+            'sec-ch-ua-platform': 'Windows'
+        })
         answer = r.json()
         item = FormClickerItem()
         item['date'] = str(datetime.now())
